@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Code Radio</string>
+    <string name="live">● LIVE · Code Radio</string>
+    <string name="ready">Ready to listen</string>
+    <string name="connecting">Connecting to Code Radio…</string>
+    <string name="buffering">Buffering the live stream…</string>
+    <string name="paused">Paused</string>
+    <string name="stopped">Playback stopped</string>
+    <string name="station_offline">Station is offline · checking again soon</string>
+    <string name="no_stream">Stream unavailable · checking again soon</string>
+    <string name="metadata_unavailable">Cannot reach the station · retrying</string>
+    <string name="metadata_stale">Track info is temporarily unavailable. Playback can continue.</string>
+    <string name="reconnecting">Reconnecting in %1$d sec…</string>
+    <string name="connection_failed">Connection failed. Tap retry.</string>
+    <string name="play">▶  Play radio</string>
+    <string name="pause">Ⅱ  Pause radio</string>
+    <string name="retry">Retry connection</string>
+    <string name="stop">Stop playback and close</string>
+    <string name="stop_short">Stop</string>
+    <string name="settings">Settings</string>
+    <string name="album_art">Current track album artwork</string>
+    <string name="background_hint">Keep listening with notification and lock screen controls</string>
+    <string name="listener_waiting">Live radio for focused work</string>
+    <string name="listeners_value">%1$d listening now</string>
+    <string name="volume">App volume</string>
+    <string name="volume_value">App volume · %1$d%%</string>
+    <string name="quality">Stream quality</string>
+    <string name="quality_hint">64 kbps uses less mobile data</string>
+    <string name="quality_fallback">64 kbps unavailable · using the default stream</string>
+    <string name="autoplay_setting">Play when the app opens</string>
+    <string name="artwork_setting">Show album artwork</string>
+    <string name="listeners_setting">Show listener count</string>
+    <string name="website">Open Code Radio website</string>
+    <string name="original_source">Original desktop project</string>
+    <string name="unofficial">Unofficial freeCodeCamp Code Radio player</string>
+    <string name="about">Code Radio Android 1.0.0\nAdapted from coderadio-on-tray 0.5.2 by pawprint0706.\nUnofficial client, not affiliated with freeCodeCamp. Streams, track info and artwork are provided by Code Radio.</string>
+    <string name="close">Close</string>
+</resources>

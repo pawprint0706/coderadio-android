@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Code Radio</string>
+    <string name="live">● LIVE · Code Radio</string>
+    <string name="ready">재생 준비 완료</string>
+    <string name="connecting">Code Radio에 연결하는 중…</string>
+    <string name="buffering">라이브 방송을 불러오는 중…</string>
+    <string name="paused">일시정지됨</string>
+    <string name="stopped">재생이 종료되었습니다</string>
+    <string name="station_offline">방송국이 오프라인입니다 · 잠시 후 다시 확인합니다</string>
+    <string name="no_stream">스트림을 찾을 수 없습니다 · 다시 확인합니다</string>
+    <string name="metadata_unavailable">방송국에 연결할 수 없습니다 · 재시도 중</string>
+    <string name="metadata_stale">곡 정보를 잠시 가져올 수 없습니다. 음악은 계속 재생할 수 있습니다.</string>
+    <string name="reconnecting">%1$d초 후 다시 연결합니다…</string>
+    <string name="connection_failed">연결하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="play">▶  라디오 재생</string>
+    <string name="pause">Ⅱ  일시정지</string>
+    <string name="retry">다시 연결</string>
+    <string name="stop">재생 종료하고 닫기</string>
+    <string name="stop_short">종료</string>
+    <string name="settings">설정</string>
+    <string name="album_art">현재 곡의 앨범아트</string>
+    <string name="background_hint">알림창과 잠금화면에서도 재생을 제어할 수 있어요</string>
+    <string name="listener_waiting">집중하는 시간을 위한 라이브 라디오</string>
+    <string name="listeners_value">지금 %1$d명이 함께 듣고 있어요</string>
+    <string name="volume">앱 볼륨</string>
+    <string name="volume_value">앱 볼륨 · %1$d%%</string>
+    <string name="quality">스트림 음질</string>
+    <string name="quality_hint">64 kbps로 모바일 데이터를 절약하세요</string>
+    <string name="quality_fallback">64 kbps 스트림이 없어 기본 스트림을 사용합니다</string>
+    <string name="autoplay_setting">앱을 열면 자동 재생</string>
+    <string name="artwork_setting">앨범아트 표시</string>
+    <string name="listeners_setting">청취자 수 표시</string>
+    <string name="website">Code Radio 웹사이트 열기</string>
+    <string name="original_source">원본 데스크톱 프로젝트</string>
+    <string name="unofficial">freeCodeCamp Code Radio 비공식 플레이어</string>
+    <string name="about">Code Radio Android 1.0.0\npawprint0706의 coderadio-on-tray 0.5.2를 바탕으로 제작했습니다.\nfreeCodeCamp와 제휴하지 않은 비공식 앱입니다. 스트림·곡 정보·앨범아트는 Code Radio에서 제공합니다.</string>
+    <string name="close">닫기</string>
+</resources>
