@@ -6,9 +6,11 @@ import shutil
 import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
+from gradle import configure_java
 
 root = Path(__file__).resolve().parents[1]
 source = root / 'app/src/main/java/io/github/pawprint0706/coderadio'
+configure_java()
 with tempfile.TemporaryDirectory(prefix='coderadio-check-') as temp:
     core = [source / (name + '.java') for name in ('RadioConfig', 'RadioRules', 'PlaybackIntent', 'StationSnapshot')]
     helpers = [root / 'scripts/CoreChecks.java', root / 'scripts/JavaSyntaxCheck.java']
@@ -26,7 +28,7 @@ values = ET.parse(root / 'app/src/main/res/values/strings.xml').getroot()
 korean = ET.parse(root / 'app/src/main/res/values-ko/strings.xml').getroot()
 names = {node.attrib['name'] for node in values}
 assert names == {node.attrib['name'] for node in korean}, 'Translation keys differ'
-java_text = '\n'.join(path.read_text() for path in sources)
+java_text = '\n'.join(path.read_text(encoding='utf-8') for path in sources)
 referenced = set(re.findall(r'R\.string\.(\w+)', java_text))
 assert referenced <= names, f'Missing resources: {referenced - names}'
 print(f'PASS: {len(names)} English/Korean keys and Java string references')

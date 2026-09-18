@@ -40,6 +40,9 @@ Android 릴리스 저장소가 아직 없으므로 앱 업데이트 알림을 �
 요구 사항: **Java 17**, **Python 3.9+**, Android SDK **Platform 35 / Build Tools 35.0.0**, 인터넷 연결.
 앱은 **Android 8.0(API 26) 이상**을 대상으로 하며 compile/target SDK는 35입니다.
 AGP 8.9.2 / Gradle 8.11.1 / Media3 1.6.1로 버전을 고정했습니다.
+빌드 스크립트는 `JAVA_HOME`, `PATH` 순서로 Java 17 이상을 찾고, Windows에서는 필요할 경우
+Android Studio에 포함된 JBR도 자동으로 사용합니다.
+Android SDK는 `local.properties`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`와 운영체제별 표준 설치 경로에서 찾습니다.
 
 1. Android Studio의 SDK Manager에서 필요한 SDK를 설치합니다.
 2. 프로젝트 루트에 `local.properties`를 생성합니다. SDK 경로는 자신의 PC에 맞춥니다.

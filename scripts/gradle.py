@@ -21,6 +21,67 @@ TOOLS = ROOT / '.tools'
 DISTRIBUTION = f'https://services.gradle.org/distributions/gradle-{VERSION}-bin.zip'
 
 
+def java_major(executable):
+    result = subprocess.run(
+        [str(executable), '-version'], capture_output=True, text=True, errors='replace'
+    )
+    match = re.search(r'version\s+"(?:1\.)?(\d+)', result.stdout + result.stderr)
+    return int(match.group(1)) if result.returncode == 0 and match else None
+
+
+def configure_java():
+    candidates = []
+    java_home = os.environ.get('JAVA_HOME')
+    if java_home:
+        candidates.append(Path(java_home) / 'bin' / ('java.exe' if os.name == 'nt' else 'java'))
+    path_java = shutil.which('java')
+    if path_java:
+        candidates.append(Path(path_java))
+    if os.name == 'nt':
+        program_files = Path(os.environ.get('ProgramFiles', r'C:\Program Files'))
+        candidates.append(program_files / 'Android' / 'Android Studio' / 'jbr' / 'bin' / 'java.exe')
+
+    checked = set()
+    for executable in candidates:
+        executable = executable.resolve()
+        if executable in checked or not executable.is_file():
+            continue
+        checked.add(executable)
+        major = java_major(executable)
+        if major is not None and major >= 17:
+            home = executable.parent.parent
+            os.environ['JAVA_HOME'] = str(home)
+            os.environ['PATH'] = str(executable.parent) + os.pathsep + os.environ.get('PATH', '')
+            print(f'Using Java {major} from {home}', flush=True)
+            return
+    raise RuntimeError('Java 17 or newer is required; set JAVA_HOME or install Android Studio')
+
+
+def configure_android_sdk():
+    if (ROOT / 'local.properties').is_file():
+        return
+    candidates = [os.environ.get('ANDROID_HOME'), os.environ.get('ANDROID_SDK_ROOT')]
+    if os.name == 'nt':
+        local_app_data = os.environ.get('LOCALAPPDATA')
+        if local_app_data:
+            candidates.append(Path(local_app_data) / 'Android' / 'Sdk')
+    elif sys.platform == 'darwin':
+        candidates.append(Path.home() / 'Library' / 'Android' / 'sdk')
+    else:
+        candidates.append(Path.home() / 'Android' / 'Sdk')
+
+    for candidate in candidates:
+        if not candidate:
+            continue
+        sdk = Path(candidate).expanduser().resolve()
+        if sdk.is_dir() and (sdk / 'platforms').is_dir():
+            os.environ['ANDROID_HOME'] = str(sdk)
+            os.environ['ANDROID_SDK_ROOT'] = str(sdk)
+            print(f'Using Android SDK from {sdk}', flush=True)
+            return
+    raise RuntimeError('Android SDK not found; set ANDROID_HOME or create local.properties')
+
+
 def download(url, destination):
     request = urllib.request.Request(url, headers={'User-Agent': 'CodeRadioAndroid-build/1.0'})
     with urllib.request.urlopen(request, timeout=60) as response, destination.open('wb') as output:
@@ -75,6 +136,7 @@ def run(launcher, args, cwd):
 
 
 def main():
+    configure_java()
     launcher, checksum = install()
     args = sys.argv[1:]
     if args == ['--setup']:
@@ -91,6 +153,7 @@ def main():
             shutil.copytree(build / 'gradle', ROOT / 'gradle', dirs_exist_ok=True)
         print('Official Gradle wrapper generated. Open this folder in Android Studio.')
     else:
+        configure_android_sdk()
         run(launcher, args or ['testDebugUnitTest', 'lintDebug', 'assembleDebug'], ROOT)
 
 

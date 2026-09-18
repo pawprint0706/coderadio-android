@@ -27,6 +27,7 @@ import androidx.media3.session.CommandButton;
 import androidx.media3.session.MediaSession;
 import androidx.media3.session.MediaSessionService;
 import androidx.media3.session.SessionCommand;
+import androidx.media3.session.SessionError;
 import androidx.media3.session.SessionResult;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -154,7 +155,7 @@ public final class PlaybackService extends MediaSessionService {
                             stopPlayback();
                             return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
                         }
-                        return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED));
+                        return Futures.immediateFuture(new SessionResult(SessionError.ERROR_NOT_SUPPORTED));
                     }
                 }).build();
         session.setCustomLayout(Collections.singletonList(new CommandButton.Builder()
