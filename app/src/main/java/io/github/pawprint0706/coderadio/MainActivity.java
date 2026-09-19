@@ -151,7 +151,10 @@ public final class MainActivity extends Activity {
         qualityHint = text("", 12, MUTED);
         qualityHint.setPadding(0, dp(10), 0, 0);
         controls.addView(qualityHint, full());
-        content.addView(controls, new LinearLayout.LayoutParams(Math.min(dp(480), artSize + dp(24)), -2));
+        LinearLayout.LayoutParams controlsParams = new LinearLayout.LayoutParams(
+                Math.min(dp(480), artSize + dp(24)), -2);
+        controlsParams.topMargin = dp(20);
+        content.addView(controls, controlsParams);
 
         warning = text("", 12, MUTED);
         warning.setGravity(Gravity.CENTER);
