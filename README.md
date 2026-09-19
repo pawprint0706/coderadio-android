@@ -49,15 +49,20 @@ gh secret set ANDROID_SIGNING_STORE_PASSWORD
 gh secret set ANDROID_SIGNING_KEY_PASSWORD
 ```
 
-그다음 `vMAJOR.MINOR.PATCH` 형식의 annotated tag를 푸시합니다.
+그다음 다음 방법 중 하나로 릴리스를 시작합니다.
+
+- GitHub **Actions → Android APK → Run workflow**에서 `release_version`에 `1.0.0`처럼 입력합니다.
+  워크플로가 현재 커밋에 `v1.0.0` 태그를 만들고 Release를 게시합니다.
+- 또는 `vMAJOR.MINOR.PATCH` 형식의 annotated tag를 직접 푸시합니다.
 
 ```bash
 git tag -a v1.0.0 -m "Code Radio Android 1.0.0"
 git push origin v1.0.0
 ```
 
-워크플로는 태그를 앱의 `versionName`으로 사용하고, 서명된 릴리스 APK의 서명을 검증한 뒤
-GitHub Release와 `CodeRadio-Android-1.0.0.apk`를 게시합니다.
+워크플로는 입력값 또는 태그를 앱의 `versionName`으로 사용하고, 서명된 릴리스 APK의 서명을 검증한 뒤
+GitHub Release와 `CodeRadio-Android-1.0.0.apk`를 게시합니다. `release_version`을 비워 수동 실행하면
+검증용 디버그 빌드만 수행합니다.
 
 ## APK 만들기 — 로컬
 
