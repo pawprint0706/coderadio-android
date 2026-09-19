@@ -108,7 +108,8 @@ jobs:
         run: gradle --no-daemon assembleRelease
       - name: Verify and name signed APK
         run: |
-          apksigner verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs \
+            app/build/outputs/apk/release/app-release.apk
           cp app/build/outputs/apk/release/app-release.apk "CodeRadio-Android-${VERSION_NAME}.apk"
       - name: Upload signed release artifact
         uses: actions/upload-artifact@v7
