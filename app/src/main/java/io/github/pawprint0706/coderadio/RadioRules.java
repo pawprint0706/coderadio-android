@@ -39,9 +39,6 @@ public final class RadioRules {
         try { return httpsUrl(URI.create(RadioConfig.API).resolve(raw.trim()).toString()); }
         catch (Exception ignored) { return ""; }
     }
-    public static float volume(int value) {
-        return (float) Math.pow(Math.max(0, Math.min(100, value)) / 100.0, 0.75);
-    }
     public static long retryDelay(int attempt) {
         return Math.min(30_000, 1_000L << Math.min(5, Math.max(0, attempt)));
     }

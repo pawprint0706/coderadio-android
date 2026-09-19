@@ -59,7 +59,6 @@ public final class PlaybackService extends MediaSessionService {
     private final Runnable stablePlayback = () -> retryAttempt = 0;
     private final SharedPreferences.OnSharedPreferenceChangeListener settingsListener = (prefs, key) -> {
         if (destroyed || player == null) return;
-        if ("volume".equals(key)) player.setVolume(RadioRules.volume(settings.volume()));
         if ("bitrate".equals(key) && intent.requested() && snapshot != null && snapshot.online) connectStream();
         if ("artwork".equals(key)) {
             artworkKey = "";
@@ -94,7 +93,7 @@ public final class PlaybackService extends MediaSessionService {
                 .setHandleAudioBecomingNoisy(true)
                 .setWakeMode(C.WAKE_MODE_NETWORK)
                 .build();
-        player.setVolume(RadioRules.volume(settings.volume()));
+        player.setVolume(1.0f);
         player.addListener(new Player.Listener() {
             @Override public void onIsPlayingChanged(boolean isPlaying) {
                 main.removeCallbacks(stablePlayback);
@@ -140,7 +139,8 @@ public final class PlaybackService extends MediaSessionService {
                                 .remove(Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
                                 .remove(Player.COMMAND_SEEK_TO_MEDIA_ITEM)
                                 .remove(Player.COMMAND_SEEK_BACK)
-                                .remove(Player.COMMAND_SEEK_FORWARD).build();
+                                .remove(Player.COMMAND_SEEK_FORWARD)
+                                .remove(Player.COMMAND_SET_VOLUME).build();
                         return MediaSession.ConnectionResult.accept(
                                 defaults.availableSessionCommands.buildUpon().add(START).add(STOP).build(), transport);
                     }

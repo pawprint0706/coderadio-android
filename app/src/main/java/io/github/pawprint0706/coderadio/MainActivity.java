@@ -19,7 +19,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -42,10 +41,9 @@ public final class MainActivity extends Activity {
     private Settings settings;
     private MediaController controller;
     private ListenableFuture<MediaController> controllerFuture;
-    private TextView title, artist, album, status, listeners, volumeLabel, warning, qualityHint;
+    private TextView title, artist, album, status, listeners, warning, qualityHint;
     private ImageView cover;
     private Button play, high, low;
-    private SeekBar volume;
     private byte[] displayedArt;
     private boolean launchHandled, started;
     private final Player.Listener playerListener = new Player.Listener() {
@@ -132,39 +130,13 @@ public final class MainActivity extends Activity {
             else controller.sendCustomCommand(PlaybackService.START, Bundle.EMPTY);
         });
         content.addView(play, new LinearLayout.LayoutParams(Math.min(dp(300), artSize), dp(64)));
-        TextView hint = text(getString(R.string.background_hint), 12, MUTED);
-        hint.setGravity(Gravity.CENTER);
-        hint.setPadding(0, dp(14), 0, dp(24));
-        content.addView(hint, full());
 
         LinearLayout controls = new LinearLayout(this);
         controls.setOrientation(LinearLayout.VERTICAL);
         controls.setPadding(dp(18), dp(18), dp(18), dp(18));
         controls.setBackground(round(CARD, 20));
-        volumeLabel = text("", 13, TEXT);
-        controls.addView(volumeLabel, full());
-        volume = new SeekBar(this);
-        volume.setMax(100);
-        volume.setProgress(settings.volume());
-        volume.setContentDescription(getString(R.string.volume));
-        volume.setProgressTintList(ColorStateList.valueOf(ACCENT));
-        volume.setThumbTintList(ColorStateList.valueOf(ACCENT));
-        volume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
-                volumeLabel.setText(getString(R.string.volume_value, progress));
-                if (fromUser) {
-                    settings.prefs.edit().putInt("volume", progress).apply();
-                    if (controller != null) controller.setVolume(RadioRules.volume(progress));
-                }
-            }
-            @Override public void onStartTrackingTouch(SeekBar bar) {}
-            @Override public void onStopTrackingTouch(SeekBar bar) {
-                settings.prefs.edit().putInt("volume", bar.getProgress()).apply();
-            }
-        });
-        controls.addView(volume, new LinearLayout.LayoutParams(-1, dp(48)));
         TextView quality = text(getString(R.string.quality), 13, TEXT);
-        quality.setPadding(0, dp(8), 0, dp(10));
+        quality.setPadding(0, 0, 0, dp(10));
         controls.addView(quality, full());
         LinearLayout qualities = row();
         high = button("128 kbps", ACCENT, BG);
@@ -264,12 +236,11 @@ public final class MainActivity extends Activity {
             if (art == null) cover.setImageResource(R.drawable.app_icon);
             else cover.setImageBitmap(BitmapFactory.decodeByteArray(art, 0, art.length));
         }
-        volumeLabel.setText(getString(R.string.volume_value, settings.volume()));
-        if (!volume.isPressed()) volume.setProgress(settings.volume());
         colorQuality(high, settings.bitrate() == 128);
         colorQuality(low, settings.bitrate() == 64);
         boolean fallback = settings.bitrate() == 64 && !state.getBoolean("low_available");
-        qualityHint.setText(fallback ? R.string.quality_fallback : R.string.quality_hint);
+        qualityHint.setText(fallback ? getString(R.string.quality_fallback) : "");
+        qualityHint.setVisibility(fallback ? View.VISIBLE : View.GONE);
         warning.setText(state.getBoolean("metadata_stale") ? getString(R.string.metadata_stale) : "");
         warning.setVisibility(warning.length() == 0 ? View.GONE : View.VISIBLE);
     }
@@ -287,7 +258,7 @@ public final class MainActivity extends Activity {
         Button source = button(getString(R.string.original_source), CARD, TEXT);
         source.setOnClickListener(v -> openUrl(RadioConfig.SOURCE));
         body.addView(source, full());
-        TextView notice = text(getString(R.string.about), 12, MUTED);
+        TextView notice = text(getString(R.string.about, BuildConfig.VERSION_NAME), 12, MUTED);
         notice.setPadding(0, dp(16), 0, 0);
         body.addView(notice, full());
         new AlertDialog.Builder(this).setTitle(R.string.settings).setView(body)

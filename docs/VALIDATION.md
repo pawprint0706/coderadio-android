@@ -1,25 +1,26 @@
-# 검증 기록 — 2026-09-18
+# 검증 기록 — 2026-09-19
 
 ## 이 환경에서 실행하여 통과한 항목
 
 `python scripts/check_offline.py`
 
-- 실제 프로덕션 `RadioRules`, `PlaybackIntent`, `StationSnapshot`를 Java 17로 컴파일하고 30개 회귀 검사 실행.
-- 곡명 누락/구분자 보정, HTTPS URL 검증, 상대 아트워크 URL, 볼륨 범위/곡선, 재시도 상한 검증.
+- 실제 프로덕션 `RadioRules`, `PlaybackIntent`, `StationSnapshot`를 Java 17로 컴파일하고 27개 회귀 검사 실행.
+- 곡명 누락/구분자 보정, HTTPS URL 검증, 상대 아트워크 URL, 재시도 상한 검증.
 - 재생 요청 → 네트워크 실패 token → 일시정지 → 이전 token 무효화 검증.
 - 새 재생 요청 이후에도 이전 실패 token이 다시 유효해지지 않는지 검증.
 - 기본/저음질 스트림 선택 및 청취자 수 음수 보정 검증.
-- Java 소스 11개의 구문 파싱 통과. **Android 타입/API 호환성을 확인한 빌드가 아님.**
-- XML 6개 구문 파싱, 한국어/영어 문자열 36개 키 일치, Java 문자열 리소스 참조 검증.
+- Java 소스 11개의 구문 파싱 통과.
+- XML 7개 구문 파싱, 한국어/영어 문자열 32개 키 일치, Java 문자열 리소스 참조 검증.
+- 앱 내부 볼륨 100% 고정, MediaSession 앱 볼륨 명령 차단, 볼륨 UI 제거 정적 검사.
 - 미디어 재생 포그라운드 서비스 선언 및 HTTPS-only 설정 검사.
+- `testDebugUnitTest lintDebug assembleDebug`: JUnit 8개, Android Lint, 디버그 APK 빌드 통과.
+- 임시 테스트 키로 `assembleRelease`, APK v2 서명 검증, 태그용 `versionName`/`versionCode` 주입 확인.
 
-## 포함했으나 실행하지 못한 항목
+## 아직 실행하지 못한 항목
 
-- `NowPlayingParserTest`: 실제 JSON 응답 구조를 모사한 8개 JUnit 테스트.
-- `gradle testDebugUnitTest lintDebug assembleDebug`: Android SDK, Gradle 및 Maven 의존성 다운로드가 제한되어 미실행.
 - 실제 v2 API/방송 서버/앨범아트 서버 통신: 네트워크 제한으로 미확인.
 - APK 생성, Android 설치, 에뮬레이터/휴대폰 재생 및 UI 렌더링: 미실행.
-- GitHub Actions: 워크플로 파일만 포함, 원격 실행하지 않음.
+- 실제 배포 키를 사용한 태그 릴리스: GitHub Actions secrets 등록 후 실행 필요.
 
 ## 기기 확인 절차 — 모두 미실행
 
@@ -39,7 +40,7 @@
 | 재시도 대기 중 일시정지·종료 | 네트워크 복구/HTTP 응답 뒤 자동으로 음악이 켜지지 않음 |
 | 이어폰 분리·다른 음악 앱/통화 | 적절한 오디오 포커스 및 중지 동작, 스피커로 갑자기 재생하지 않음 |
 | 자동 재생 끄고 재실행 | 정보만 로드, 재생 버튼을 누를 때 시작 |
-| 회전·백그라운드 복귀·볼륨 키·TalkBack | 설정 보존, 중복 재생 없음, 제어 가능 |
+| 회전·백그라운드 복귀·볼륨 키·TalkBack | 앱 내부 볼륨 100% 유지, 기기 미디어 볼륨 조절, 설정 보존, 중복 재생 없음 |
 | 앱/알림에서 종료 | 재생·알림·재시도 종료, 다시 실행해 재생 가능 |
 | 긴 일시정지·OS 서비스 종료 후 앱 재실행 | 컨트롤러 재연결, 사용자 요청으로 정상 재생 |
 

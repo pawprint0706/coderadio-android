@@ -23,9 +23,6 @@ public final class CoreChecks {
         equal("https://example.com/live", RadioRules.httpsUrl(" https://example.com/live "));
         equal("https://coderadio-admin-v2.freecodecamp.org/art.jpg", RadioRules.artworkUrl("/art.jpg"));
         equal("", RadioRules.artworkUrl("data:image/png;base64,test"));
-        equal(0.0f, RadioRules.volume(-10));
-        equal(1.0f, RadioRules.volume(999));
-        equal(true, Math.abs(RadioRules.volume(50) - 0.59460356f) < 0.00001);
         equal(1_000L, RadioRules.retryDelay(0));
         equal(2_000L, RadioRules.retryDelay(1));
         equal(30_000L, RadioRules.retryDelay(50));

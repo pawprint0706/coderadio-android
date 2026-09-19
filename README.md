@@ -3,9 +3,8 @@
 첨부된 **coderadio-on-tray 0.5.2**를 분석해 만든 Android 네이티브 포팅 프로젝트입니다.
 원본 ZIP의 commit 식별자는 `c6ab1683f906705a1824faf500bdc62bb61a5212`입니다.
 
-**현재 전달물은 소스 프로젝트입니다. APK 빌드 및 실기기 테스트를 마친 릴리스가 아닙니다.**
-제작 환경에 Android SDK/Gradle 배포본이 없고 다운로드가 제한되어 APK는 포함하지 못했습니다.
-Android 의존성이 없는 실제 핵심 코드 30개 검사, Java 구문 검사, XML/문자열 참조 검사는 통과했습니다.
+**현재 APK 빌드와 자동 검증은 통과했지만 실기기 재생 시나리오는 아직 확인하지 않았습니다.**
+Android 의존성이 없는 핵심 회귀 검사, Java 구문 검사, XML/문자열 참조 검사도 함께 실행합니다.
 상세 결과는 [검증 기록](docs/VALIDATION.md)을 참고하세요.
 
 ## 구현된 기능
@@ -15,8 +14,8 @@ Android 의존성이 없는 실제 핵심 코드 30개 검사, Java 구문 검�
 - 알림창·잠금화면 미디어 플레이어: 재생/일시정지, 곡명·아티스트·앨범아트
 - 알림의 추가 종료 액션(표시 위치/개수는 Android 버전과 제조사에 따라 다름)
 - 원본 v2 API에서 **실제 스트림 URL을 조회**, 128/64kbps 선택 및 저음질 미제공 시 기본 스트림 사용
-- 원본과 같은 0–100 볼륨 / 0.75 지수 곡선, 청취자 수, 앨범명, 곡명 누락 보정
-- 자동 재생·앨범아트·청취자 표시·볼륨·음질 설정 저장
+- 앱 내부 볼륨 100% 고정(실제 음량은 기기의 미디어 볼륨으로 조절), 청취자 수·앨범명·곡명 누락 보정
+- 자동 재생·앨범아트·청취자 표시·음질 설정 저장
 - 곡 변경 시 기본 이미지로 먼저 전환한 뒤 새 앨범아트 반영, 이전 비동기 응답 무시
 - 연결 오류/방송 종료 시 1→2→4→8→16→30초 재연결, 사용자 일시정지 시 취소
 - 이어폰 분리 시 일시정지, 오디오 포커스 처리, 한국어/영어 UI
@@ -27,13 +26,38 @@ Android 릴리스 저장소가 아직 없으므로 앱 업데이트 알림을 �
 
 ## APK 만들기 — GitHub Actions
 
-1. ZIP 안의 `coderadio-android` 폴더 내용을 **새 GitHub 저장소의 루트**에 올립니다. `.github` 폴더도 포함합니다.
-2. GitHub **Actions → Android APK → Run workflow**를 실행합니다.
-3. 단위 테스트·Android Lint·빌드가 모두 통과하면 **Artifacts → CodeRadio-Android-debug**를 내려받습니다.
-4. 압축 안의 `app-debug.apk`를 Android 휴대폰으로 옮겨 설치합니다.
+1. GitHub **Actions → Android APK → Run workflow**를 실행합니다.
+2. 단위 테스트·Android Lint·빌드가 통과하면 **Artifacts → CodeRadio-Android-debug**를 내려받습니다.
+3. 압축 안의 `app-debug.apk`를 Android 휴대폰으로 옮겨 설치합니다.
 
-이 워크플로는 파일로만 포함되어 있으며, 이 대화에서 원격 실행하거나 저장소에 업로드하지 않았습니다.
-기존 데스크톱 저장소의 하위 폴더에 넣는 경우 워크플로의 실행 경로/아티팩트 경로를 해당 폴더에 맞춰야 합니다.
+### 서명된 릴리스 APK
+
+저장소의 Actions secrets에 아래 네 값을 등록합니다. 키스토어 원본과 비밀번호는 GitHub 외부에도 안전하게 백업해야 합니다.
+
+- `ANDROID_SIGNING_KEYSTORE_BASE64`: JKS/PKCS12 키스토어 파일 전체의 Base64
+- `ANDROID_SIGNING_KEY_ALIAS`: 키 alias
+- `ANDROID_SIGNING_STORE_PASSWORD`: 키스토어 비밀번호
+- `ANDROID_SIGNING_KEY_PASSWORD`: 키 비밀번호
+
+PowerShell에서는 키스토어를 다음과 같이 등록할 수 있습니다.
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("release.jks")) |
+  gh secret set ANDROID_SIGNING_KEYSTORE_BASE64
+gh secret set ANDROID_SIGNING_KEY_ALIAS
+gh secret set ANDROID_SIGNING_STORE_PASSWORD
+gh secret set ANDROID_SIGNING_KEY_PASSWORD
+```
+
+그다음 `vMAJOR.MINOR.PATCH` 형식의 annotated tag를 푸시합니다.
+
+```bash
+git tag -a v1.0.0 -m "Code Radio Android 1.0.0"
+git push origin v1.0.0
+```
+
+워크플로는 태그를 앱의 `versionName`으로 사용하고, 서명된 릴리스 APK의 서명을 검증한 뒤
+GitHub Release와 `CodeRadio-Android-1.0.0.apk`를 게시합니다.
 
 ## APK 만들기 — 로컬
 
@@ -105,7 +129,7 @@ Android 13+의 미디어 세션 알림은 일반 알림 권한 예외 대상이�
 | `MainActivity.java` | 서비스 컨트롤러 연결, 플레이어 화면 및 설정 |
 | `NowPlayingParser.java` | 원본 AzuraCast 응답과 스트림 마운트 파싱 |
 | `PlaybackIntent.java` | 사용자 재생 의사와 지연 재시도 세대 관리 |
-| `RadioRules.java` | 곡명 보정, URL 검증, 볼륨 곡선, 재시도 간격 |
+| `RadioRules.java` | 곡명 보정, URL 검증, 재시도 간격 |
 | `RadioHttp.java` / `Artwork.java` | 제한 크기 HTTP 요청, 앨범 이미지 디코딩 |
 | `scripts/check_offline.py` | Android SDK 없이 수행 가능한 핵심 회귀 검사 |
 

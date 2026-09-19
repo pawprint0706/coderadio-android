@@ -20,13 +20,9 @@
     <string name="stop_short">Stop</string>
     <string name="settings">Settings</string>
     <string name="album_art">Current track album artwork</string>
-    <string name="background_hint">Keep listening with notification and lock screen controls</string>
     <string name="listener_waiting">Live radio for focused work</string>
-    <string name="listeners_value">%1$d listening now</string>
-    <string name="volume">App volume</string>
-    <string name="volume_value">App volume · %1$d%%</string>
+    <string name="listeners_value">%1$d people listening together</string>
     <string name="quality">Stream quality</string>
-    <string name="quality_hint">64 kbps uses less mobile data</string>
     <string name="quality_fallback">64 kbps unavailable · using the default stream</string>
     <string name="autoplay_setting">Play when the app opens</string>
     <string name="artwork_setting">Show album artwork</string>
@@ -34,6 +30,6 @@
     <string name="website">Open Code Radio website</string>
     <string name="original_source">Original desktop project</string>
     <string name="unofficial">Unofficial freeCodeCamp Code Radio player</string>
-    <string name="about">Code Radio Android 1.0.0\nAdapted from coderadio-on-tray 0.5.2 by pawprint0706.\nUnofficial client, not affiliated with freeCodeCamp. Streams, track info and artwork are provided by Code Radio.</string>
+    <string name="about">Code Radio Android %1$s\nAdapted from coderadio-on-tray 0.5.2 by pawprint0706.\nUnofficial client, not affiliated with freeCodeCamp. Streams, track info and artwork are provided by Code Radio.</string>
     <string name="close">Close</string>
 </resources>

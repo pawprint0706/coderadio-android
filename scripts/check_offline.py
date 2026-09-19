@@ -32,6 +32,12 @@ java_text = '\n'.join(path.read_text(encoding='utf-8') for path in sources)
 referenced = set(re.findall(r'R\.string\.(\w+)', java_text))
 assert referenced <= names, f'Missing resources: {referenced - names}'
 print(f'PASS: {len(names)} English/Korean keys and Java string references')
+activity_text = (source / 'MainActivity.java').read_text(encoding='utf-8')
+service_text = (source / 'PlaybackService.java').read_text(encoding='utf-8')
+assert 'SeekBar' not in activity_text and 'R.string.volume' not in activity_text
+assert 'player.setVolume(1.0f)' in service_text
+assert '.remove(Player.COMMAND_SET_VOLUME)' in service_text
+print('PASS: Fixed 100% app volume and no volume control UI')
 manifest = ET.parse(root / 'app/src/main/AndroidManifest.xml').getroot()
 ns = '{http://schemas.android.com/apk/res/android}'
 permissions = {node.attrib[ns + 'name'] for node in manifest.findall('uses-permission')}
