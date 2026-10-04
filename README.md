@@ -39,10 +39,10 @@ Android 릴리스 저장소가 아직 없으므로 앱 업데이트 알림을 �
 - `ANDROID_SIGNING_STORE_PASSWORD`: 키스토어 비밀번호
 - `ANDROID_SIGNING_KEY_PASSWORD`: 키 비밀번호
 
-PowerShell에서는 키스토어를 다음과 같이 등록할 수 있습니다.
+macOS에서는 키스토어를 다음과 같이 등록할 수 있습니다.
 
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("release.jks")) |
+```bash
+base64 -i ~/.coderadio-android-signing/coderadio-release.p12 | tr -d '\n' |
   gh secret set ANDROID_SIGNING_KEYSTORE_BASE64
 gh secret set ANDROID_SIGNING_KEY_ALIAS
 gh secret set ANDROID_SIGNING_STORE_PASSWORD
@@ -66,30 +66,25 @@ GitHub Release와 `CodeRadio-Android-1.0.0.apk`를 게시합니다. `release_ver
 
 ## APK 만들기 — 로컬
 
-요구 사항: **Java 17**, **Python 3.9+**, Android SDK **Platform 35 / Build Tools 35.0.0**, 인터넷 연결.
+요구 사항: **Java 17+**, **Python 3.9+**, Android SDK **Platform 35 / Build Tools 35.0.0**, 인터넷 연결.
 앱은 **Android 8.0(API 26) 이상**을 대상으로 하며 compile/target SDK는 35입니다.
 AGP 8.9.2 / Gradle 8.11.1 / Media3 1.6.1로 버전을 고정했습니다.
-빌드 스크립트는 `JAVA_HOME`, `PATH` 순서로 Java 17 이상을 찾고, Windows에서는 필요할 경우
-Android Studio에 포함된 JBR도 자동으로 사용합니다.
-Android SDK는 `local.properties`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`와 운영체제별 표준 설치 경로에서 찾습니다.
+빌드 스크립트는 `JAVA_HOME`, `PATH`, `/Applications/Android Studio.app`의 번들 JBR 순서로 Java 17 이상을 찾습니다.
+Android Studio만 설치돼 있으면 별도 JDK 설정 없이 바로 빌드됩니다.
+Android SDK는 `local.properties`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `~/Library/Android/sdk` 순서로 찾습니다.
 
 1. Android Studio의 SDK Manager에서 필요한 SDK를 설치합니다.
-2. 프로젝트 루트에 `local.properties`를 생성합니다. SDK 경로는 자신의 PC에 맞춥니다.
+   Platform 35가 없으면 첫 빌드 때 AGP가 자동으로 내려받습니다.
+2. 프로젝트 루트에 `local.properties`를 생성합니다. (Android Studio에서 열면 자동 생성됩니다.)
 
 ```properties
-# macOS 예시
 sdk.dir=/Users/yourname/Library/Android/sdk
-# Windows에서는 C:/Users/yourname/AppData/Local/Android/Sdk 형태 사용
 ```
 
 3. 프로젝트 폴더에서 실행합니다.
 
 ```bash
-# macOS / Linux
 bash build_android.sh
-
-# Windows (명령 프롬프트)
-build_android.bat
 ```
 
 빌드 스크립트는 공식 Gradle 배포본과 공식 SHA-256을 다운로드해 검증하고,
@@ -98,6 +93,30 @@ build_android.bat
 
 결과: `app/build/outputs/apk/debug/app-debug.apk`
 
+### 로컬 서명 릴리스 APK
+
+`~/.coderadio-android-signing/keystore.properties`에 키스토어 정보를 적어 두면 릴리스 빌드가 자동으로 읽습니다.
+
+```properties
+storeFile=coderadio-release.p12
+keyAlias=coderadio-android-release
+storePassword=...
+keyPassword=...
+```
+
+```bash
+bash build_android.sh assembleRelease
+```
+
+결과: `app/build/outputs/apk/release/app-release.apk`
+
+`storeFile`은 `keystore.properties`가 있는 폴더를 기준으로 찾으므로 절대 경로를 적지 않아도 됩니다.
+키스토어와 이 파일을 함께 옮겨도 경로를 고칠 필요가 없습니다.
+같은 이름의 `ANDROID_SIGNING_*` 환경변수가 이미 설정돼 있으면 그 값이 우선하므로,
+secrets로 주입하는 GitHub Actions에서는 이 파일을 읽지 않습니다.
+서명 정보를 찾지 못하면 경고를 출력하고 `app-release-unsigned.apk`를 만듭니다.
+서명을 확인하려면 `~/Library/Android/sdk/build-tools/35.0.0/apksigner verify --print-certs`를 사용합니다.
+
 ## Android Studio에서 개발
 
 이 ZIP에는 다운로드가 불가능했던 Gradle Wrapper JAR를 가짜 파일로 대체하지 않았습니다.
@@ -105,7 +124,6 @@ build_android.bat
 
 ```bash
 python3 scripts/gradle.py --setup
-# Windows: python scripts\gradle.py --setup
 ```
 
 그다음 Android Studio에서 프로젝트 폴더를 Open → Gradle Sync → Run 합니다.
