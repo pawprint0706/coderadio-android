@@ -9,7 +9,8 @@ The Android SDK is looked up in local.properties, ANDROID_HOME, ANDROID_SDK_ROOT
 ~/Library/Android/sdk. A missing SDK Platform 35 is downloaded by AGP on first build.
 
 Release builds read ~/.coderadio-android-signing/keystore.properties and fill in any
-missing ANDROID_SIGNING_* value. Values already exported win, so CI secrets are untouched.
+missing ANDROID_SIGNING_* value. Values already exported win, so an explicit override
+is never replaced.
 """
 from pathlib import Path
 import hashlib
@@ -108,8 +109,8 @@ def read_properties(path):
 def configure_signing():
     """Fill missing ANDROID_SIGNING_* values from the private local backup file.
 
-    An already exported variable always wins, so GitHub Actions secrets keep working
-    and the build never silently switches keys. Returns True when a keystore is known.
+    An already exported variable always wins, so the build never silently switches
+    keys. Returns True when a keystore is known.
     """
     if SIGNING_PROPERTIES.is_file():
         entries = read_properties(SIGNING_PROPERTIES)

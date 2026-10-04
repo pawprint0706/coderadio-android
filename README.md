@@ -24,47 +24,7 @@ Android 의존성이 없는 핵심 회귀 검사, Java 구문 검사, XML/문자
 Android 릴리스 저장소가 아직 없으므로 앱 업데이트 알림을 데스크톱 릴리스 피드에 연결하지 않았습니다.
 전체 대응표는 [기능 매핑](docs/PORTING.md)에 있습니다.
 
-## APK 만들기 — GitHub Actions
-
-1. GitHub **Actions → Android APK → Run workflow**를 실행합니다.
-2. 단위 테스트·Android Lint·빌드가 통과하면 **Artifacts → CodeRadio-Android-debug**를 내려받습니다.
-3. 압축 안의 `app-debug.apk`를 Android 휴대폰으로 옮겨 설치합니다.
-
-### 서명된 릴리스 APK
-
-저장소의 Actions secrets에 아래 네 값을 등록합니다. 키스토어 원본과 비밀번호는 GitHub 외부에도 안전하게 백업해야 합니다.
-
-- `ANDROID_SIGNING_KEYSTORE_BASE64`: JKS/PKCS12 키스토어 파일 전체의 Base64
-- `ANDROID_SIGNING_KEY_ALIAS`: 키 alias
-- `ANDROID_SIGNING_STORE_PASSWORD`: 키스토어 비밀번호
-- `ANDROID_SIGNING_KEY_PASSWORD`: 키 비밀번호
-
-macOS에서는 키스토어를 다음과 같이 등록할 수 있습니다.
-
-```bash
-base64 -i ~/.coderadio-android-signing/coderadio-release.p12 | tr -d '\n' |
-  gh secret set ANDROID_SIGNING_KEYSTORE_BASE64
-gh secret set ANDROID_SIGNING_KEY_ALIAS
-gh secret set ANDROID_SIGNING_STORE_PASSWORD
-gh secret set ANDROID_SIGNING_KEY_PASSWORD
-```
-
-그다음 다음 방법 중 하나로 릴리스를 시작합니다.
-
-- GitHub **Actions → Android APK → Run workflow**에서 `release_version`에 `1.0.0`처럼 입력합니다.
-  워크플로가 현재 커밋에 `v1.0.0` 태그를 만들고 Release를 게시합니다.
-- 또는 `vMAJOR.MINOR.PATCH` 형식의 annotated tag를 직접 푸시합니다.
-
-```bash
-git tag -a v1.0.0 -m "Code Radio Android 1.0.0"
-git push origin v1.0.0
-```
-
-워크플로는 입력값 또는 태그를 앱의 `versionName`으로 사용하고, 서명된 릴리스 APK의 서명을 검증한 뒤
-GitHub Release와 `CodeRadio-Android-1.0.0.apk`를 게시합니다. `release_version`을 비워 수동 실행하면
-검증용 디버그 빌드만 수행합니다.
-
-## APK 만들기 — 로컬
+## APK 만들기
 
 요구 사항: **Java 17+**, **Python 3.9+**, Android SDK **Platform 35 / Build Tools 35.0.0**, 인터넷 연결.
 앱은 **Android 8.0(API 26) 이상**을 대상으로 하며 compile/target SDK는 35입니다.
@@ -93,7 +53,7 @@ bash build_android.sh
 
 결과: `app/build/outputs/apk/debug/app-debug.apk`
 
-### 로컬 서명 릴리스 APK
+### 서명된 릴리스 APK
 
 `~/.coderadio-android-signing/keystore.properties`에 키스토어 정보를 적어 두면 릴리스 빌드가 자동으로 읽습니다.
 
@@ -112,10 +72,41 @@ bash build_android.sh assembleRelease
 
 `storeFile`은 `keystore.properties`가 있는 폴더를 기준으로 찾으므로 절대 경로를 적지 않아도 됩니다.
 키스토어와 이 파일을 함께 옮겨도 경로를 고칠 필요가 없습니다.
-같은 이름의 `ANDROID_SIGNING_*` 환경변수가 이미 설정돼 있으면 그 값이 우선하므로,
-secrets로 주입하는 GitHub Actions에서는 이 파일을 읽지 않습니다.
+같은 이름의 `ANDROID_SIGNING_*` 환경변수가 이미 설정돼 있으면 그 값이 우선합니다.
 서명 정보를 찾지 못하면 경고를 출력하고 `app-release-unsigned.apk`를 만듭니다.
-서명을 확인하려면 `~/Library/Android/sdk/build-tools/35.0.0/apksigner verify --print-certs`를 사용합니다.
+
+키스토어 원본과 비밀번호는 저장소에 커밋하지 말고 별도로 안전하게 백업해 두세요.
+이 저장소에는 서명 정보가 들어 있지 않습니다.
+
+빌드한 APK의 서명을 확인합니다.
+
+```bash
+~/Library/Android/sdk/build-tools/35.0.0/apksigner verify --print-certs \
+  app/build/outputs/apk/release/app-release.apk
+```
+
+### 릴리스 배포
+
+빌드와 배포는 모두 이 맥에서 수동으로 진행합니다. 저장소에 CI 워크플로가 없으므로
+릴리스도 위에서 만든 APK 파일을 GitHub Release에 직접 올려 관리합니다.
+
+1. 버전을 올립니다. `app/build.gradle`의 `releaseVersionName` / `releaseVersionCode` 기본값을
+   고치거나, 빌드할 때 환경변수로 덮어씁니다. `versionCode`는 릴리스마다 반드시 커져야 합니다.
+2. 서명된 릴리스 APK를 빌드하고 서명을 확인합니다.
+
+```bash
+VERSION_NAME=1.1.0 VERSION_CODE=3 bash build_android.sh assembleRelease
+```
+
+3. GitHub Release를 만들고 APK를 첨부합니다.
+
+```bash
+gh release create v1.1.0 app/build/outputs/apk/release/app-release.apk \
+  --title "Code Radio Android 1.1.0" --generate-notes
+```
+
+웹 UI에서는 **Releases → Draft a new release**에서 태그를 만들고 APK 파일을 첨부하면 됩니다.
+태그는 릴리스 표시용이며, 이를 자동으로 처리하는 워크플로는 없습니다.
 
 ## Android Studio에서 개발
 
