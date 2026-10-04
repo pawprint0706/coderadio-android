@@ -90,12 +90,12 @@ bash build_android.sh assembleRelease
 빌드와 배포는 모두 이 맥에서 수동으로 진행합니다. 저장소에 CI 워크플로가 없으므로
 릴리스도 위에서 만든 APK 파일을 GitHub Release에 직접 올려 관리합니다.
 
-1. 버전을 올립니다. `app/build.gradle`의 `releaseVersionName` / `releaseVersionCode` 기본값을
-   고치거나, 빌드할 때 환경변수로 덮어씁니다. `versionCode`는 릴리스마다 반드시 커져야 합니다.
+1. `app/build.gradle`의 `versionName`과 `versionCode`를 올립니다.
+   `versionCode`는 릴리스마다 반드시 커져야 하며, 올리지 않으면 기존 설치 위에 업데이트되지 않습니다.
 2. 서명된 릴리스 APK를 빌드하고 서명을 확인합니다.
 
 ```bash
-VERSION_NAME=1.1.0 VERSION_CODE=3 bash build_android.sh assembleRelease
+bash build_android.sh assembleRelease
 ```
 
 3. GitHub Release를 만들고 APK를 첨부합니다.

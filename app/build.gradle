@@ -1,7 +1,5 @@
 plugins { id 'com.android.application' }
 
-def releaseVersionName = System.getenv('VERSION_NAME') ?: '1.0.1'
-def releaseVersionCode = (System.getenv('VERSION_CODE') ?: '2') as int
 def releaseStoreFile = System.getenv('ANDROID_SIGNING_STORE_FILE')
 def releaseKeyAlias = System.getenv('ANDROID_SIGNING_KEY_ALIAS')
 def releaseStorePassword = System.getenv('ANDROID_SIGNING_STORE_PASSWORD')
@@ -15,8 +13,9 @@ android {
         applicationId 'io.github.pawprint0706.coderadio'
         minSdk 26
         targetSdk 35
-        versionCode releaseVersionCode
-        versionName releaseVersionName
+        // Bump both for every release. versionCode must always increase.
+        versionCode 2
+        versionName '1.0.1'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     compileOptions {
